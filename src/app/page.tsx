@@ -58,7 +58,7 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <Package className="h-8 w-8 text-orange-400" />
               <h1 className="text-2xl font-bold text-white">
-                Tracker
+                iTrack
               </h1>
             </div>
           </div>
