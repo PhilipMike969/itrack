@@ -1,0 +1,1 @@
+ALTER TABLE "trackings" ADD COLUMN "image_url" text;
