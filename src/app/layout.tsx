@@ -32,21 +32,9 @@ export default function RootLayout({
         {children}
         
         <Script
-          id="tawk-to"
+          id="chatway"
+          src="https://cdn.chatway.app/widget.js?id=gjkj54YWEftK"
           strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-              (function(){
-                var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-                s1.async=true;
-                s1.src='https://embed.tawk.to/692ee19fc8578219807084d8/1jbfi2mvj';
-                s1.charset='UTF-8';
-                s1.setAttribute('crossorigin','*');
-                s0.parentNode.insertBefore(s1,s0);
-              })();
-            `,
-          }}
         />
       </body>
     </html>
