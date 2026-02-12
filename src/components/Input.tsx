@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  error?: string;
+  error?: string | number;
 }
 
 export function Input({ label, error, className, ...props }: InputProps) {

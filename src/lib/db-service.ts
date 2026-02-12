@@ -51,6 +51,7 @@ export async function getAllTrackingsFromDB() {
       currentLocationIndex: trackings.currentLocationIndex,
       estimatedDelivery: trackings.estimatedDelivery,
       imageUrl: trackings.imageUrl,
+      priceUsd: trackings.priceUsd,
       createdAt: trackings.createdAt,
       updatedAt: trackings.updatedAt,
       user: {
@@ -133,6 +134,7 @@ export async function getTrackingByIdFromDB(trackingId: string) {
       currentLocationIndex: trackings.currentLocationIndex,
       estimatedDelivery: trackings.estimatedDelivery,
       imageUrl: trackings.imageUrl,
+      priceUsd: trackings.priceUsd,
       createdAt: trackings.createdAt,
       updatedAt: trackings.updatedAt,
       user: {
@@ -265,6 +267,7 @@ export async function createTrackingInDB(data: TrackingFormData) {
           currentLocationIndex: 0,
           estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
           imageUrl: data.imageUrl,
+          priceUsd: data.priceUsd ? String(data.priceUsd) : undefined,
         })
         .returning();
 
@@ -345,13 +348,19 @@ export async function updateTrackingInDB(
     status: string;
     currentLocationIndex: number;
     estimatedDelivery: Date;
+    priceUsd: string | number | null;
   }>
 ) {
   try {
-    const data = {
+    const data: Record<string, any> = {
       ...updateData,
       updatedAt: new Date(),
     };
+
+    // Ensure priceUsd is a string for Drizzle numeric type
+    if (data.priceUsd !== undefined && data.priceUsd !== null) {
+      data.priceUsd = String(data.priceUsd);
+    }
 
     const [updatedTracking] = await db
       .update(trackings)

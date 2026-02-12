@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTrackingByIdFromDB, updateTrackingInDB, deleteTrackingFromDB } from '@/lib/db-service';
+import { sendTrackingPriceUpdatedEmail } from '@/lib/email';
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
@@ -66,6 +67,10 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       updateData.estimatedDelivery = new Date(body.estimatedDelivery);
     }
     
+    if (body.priceUsd !== undefined) {
+      updateData.priceUsd = body.priceUsd;
+    }
+    
     const updatedTracking = await updateTrackingInDB(id, updateData);
     
     if (!updatedTracking) {
@@ -73,6 +78,22 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         { error: 'Tracking not found' },
         { status: 404 }
       );
+    }
+
+    // If price was updated, send email
+    if (body.priceUsd !== undefined && updatedTracking.user) {
+      try {
+        await sendTrackingPriceUpdatedEmail({
+          userEmail: updatedTracking.user.email,
+          userName: updatedTracking.user.name,
+          trackingId: updatedTracking.id,
+          packageName: updatedTracking.name,
+          priceUsd: updatedTracking.priceUsd,
+        });
+      } catch (emailError) {
+        console.error('Failed to send price update email:', emailError);
+        // Continue - don't fail the request just because email failed
+      }
     }
 
     // Ensure dates are properly serialized

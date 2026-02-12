@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllTrackingsFromDB, createTrackingInDB } from '@/lib/db-service';
 import { TrackingFormData } from '@/types';
+import { sendTrackingCreatedEmail } from '@/lib/email';
 
 export async function GET() {
   try {
@@ -63,9 +64,27 @@ export async function POST(request: NextRequest) {
       userEmail: body.userEmail.trim(),
       userPhone: body.userPhone.trim(),
       imageUrl: body.imageUrl || undefined,
+      priceUsd: body.priceUsd || undefined,
     };
 
     const newTracking = await createTrackingInDB(trackingData);
+    
+    // Send email to user with tracking information
+    try {
+      await sendTrackingCreatedEmail({
+        userEmail: trackingData.userEmail,
+        userName: trackingData.userName,
+        trackingId: newTracking.id,
+        packageName: trackingData.name,
+        startLocation: trackingData.startLocation,
+        endLocation: trackingData.endLocation,
+        priceUsd: trackingData.priceUsd,
+      });
+      console.log('Tracking email sent successfully to:', trackingData.userEmail);
+    } catch (emailError) {
+      // Log email error but don't fail the request
+      console.error('Failed to send tracking email:', emailError);
+    }
     
     // Serialize dates
     const serializedTracking = {

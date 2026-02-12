@@ -27,11 +27,15 @@ export default function AdminDashboard() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditPriceModal, setShowEditPriceModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedTracking, setSelectedTracking] = useState<Tracking | null>(null);
   const [editFormData, setEditFormData] = useState<{ name: string; estimatedDelivery?: string }>({
     name: '',
     estimatedDelivery: ''
+  });
+  const [editPriceData, setEditPriceData] = useState<{ priceUsd: string }>({
+    priceUsd: ''
   });
   const [formData, setFormData] = useState<TrackingFormData>({
     name: '',
@@ -42,6 +46,7 @@ export default function AdminDashboard() {
     userEmail: '',
     userPhone: '',
     imageUrl: '',
+    priceUsd: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<TrackingFormData>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -186,6 +191,7 @@ export default function AdminDashboard() {
           userEmail: '',
           userPhone: '',
           imageUrl: '',
+          priceUsd: '',
         });
         setImagePreview('');
         setFormErrors({});
@@ -232,6 +238,14 @@ export default function AdminDashboard() {
     setShowEditModal(true);
   };
 
+  const handleEditPrice = (tracking: Tracking) => {
+    setSelectedTracking(tracking);
+    setEditPriceData({
+      priceUsd: tracking.priceUsd ? String(tracking.priceUsd) : ''
+    });
+    setShowEditPriceModal(true);
+  };
+
   const handleDeleteTracking = (tracking: Tracking) => {
     setSelectedTracking(tracking);
     setShowDeleteModal(true);
@@ -271,6 +285,37 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error updating tracking:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdatePrice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTracking) return;
+    
+    setSubmitting(true);
+    
+    try {
+      const response = await fetch(`/api/tracking/${selectedTracking.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceUsd: editPriceData.priceUsd ? Number(editPriceData.priceUsd) : null }),
+      });
+
+      if (response.ok) {
+        const updatedTracking = await response.json();
+        setTrackings(trackings.map(t => t.id === selectedTracking.id ? updatedTracking : t));
+        setShowEditPriceModal(false);
+        setSelectedTracking(null);
+      } else {
+        const error = await response.json();
+        console.error('Error updating price:', error);
+      }
+    } catch (error) {
+      console.error('Error updating price:', error);
     } finally {
       setSubmitting(false);
     }
@@ -491,6 +536,16 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   </div>
+
+                  <Input
+                    label="Price (USD)"
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g., 199.99"
+                    value={formData.priceUsd}
+                    onChange={(e) => setFormData(prev => ({ ...prev, priceUsd: e.target.value }))}
+                    error={formErrors.priceUsd}
+                  />
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
@@ -781,6 +836,64 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Edit Price Modal */}
+        {showEditPriceModal && selectedTracking && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span className="text-xl">💰</span>
+                  <span>Edit Price</span>
+                </CardTitle>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  {selectedTracking.name}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdatePrice} className="space-y-4">
+                  <Input
+                    label="Price (USD)"
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g., 199.99"
+                    value={editPriceData.priceUsd}
+                    onChange={(e) => setEditPriceData({ priceUsd: e.target.value })}
+                  />
+
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      <strong>Note:</strong> Updating the price will send an email notification to the customer ({selectedTracking.user.email}).
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end space-x-4 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditPriceModal(false);
+                        setSelectedTracking(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={submitting}>
+                      {submitting ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+                          Updating...
+                        </>
+                      ) : (
+                        'Update Price'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedTracking && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -891,6 +1004,7 @@ export default function AdminDashboard() {
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Package</th>
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Customer</th>
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Route</th>
+                      <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Price</th>
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Status</th>
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Created</th>
                       <th className="text-left py-3 px-4 font-medium text-slate-700 dark:text-slate-300">Actions</th>
@@ -924,6 +1038,17 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            {tracking.priceUsd ? (
+                              <span className="font-semibold text-orange-700 dark:text-orange-300">
+                                ${Number(tracking.priceUsd).toFixed(2)}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-600 text-sm">N/A</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(tracking.status)}`}>
                             {tracking.status.replace('-', '')}
                           </span>
@@ -949,6 +1074,16 @@ export default function AdminDashboard() {
                               className="text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300"
                             >
                               <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditPrice(tracking)}
+                              title="Edit Price"
+                              className="text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
+                            >
+                              <span className="font-bold text-xs">$</span>
+                              <Edit className="h-3 w-3 ml-1" />
                             </Button>
                             <Button
                               variant="outline"

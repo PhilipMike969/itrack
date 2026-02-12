@@ -27,6 +27,7 @@ export interface Tracking {
   updatedAt: Date | string;
   estimatedDelivery?: Date | string;
   imageUrl?: string; // Cloudinary URL to the product image
+  priceUsd?: string | number; // Price in USD
 }
 
 export interface Admin {
@@ -43,4 +44,5 @@ export interface TrackingFormData {
   userEmail: string;
   userPhone: string;
   imageUrl?: string; // Cloudinary URL to the uploaded product image
+  priceUsd?: string | number; // Price in USD
 }

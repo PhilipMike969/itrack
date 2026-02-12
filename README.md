@@ -2,16 +2,54 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Set Up Environment Variables
+
+Create a `.env.local` file in the root directory and add the following variables:
+
+```env
+# Database
+DATABASE_URL=your_database_url_here
+
+# Cloudinary (for image uploads)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Email Configuration (Resend)
+RESEND_API_KEY=your_resend_api_key
+
+# Application URL
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+#### Setting Up Resend for Email Notifications
+
+To send tracking emails to customers, you need to set up Resend (it's super easy!):
+
+1. **Sign up for Resend**: Go to [resend.com](https://resend.com) and create a free account
+2. **Get your API Key**: 
+   - After signing up, go to [API Keys](https://resend.com/api-keys)
+   - Click "Create API Key"
+   - Give it a name (e.g., "iTrackNow Production")
+   - Copy the API key
+3. **Update `.env.local`**:
+   - Set `RESEND_API_KEY` to your API key
+4. **Email Sender**: 
+   - Free tier uses `noreply@resend.dev` as sender (works perfectly!)
+   - If you have a domain, you can verify it and use `noreply@yourdomain.com`
+
+**Free tier includes**: 100 emails/day, 3,000 emails/month - perfect for most projects!
+
+### 3. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

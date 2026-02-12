@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, varchar, uuid, serial } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, varchar, uuid, serial, numeric } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Users table
@@ -33,6 +33,7 @@ export const trackings = pgTable('trackings', {
   currentLocationIndex: integer('current_location_index').notNull().default(0),
   estimatedDelivery: timestamp('estimated_delivery'),
   imageUrl: text('image_url'), // Cloudinary URL to the product image
+  priceUsd: numeric('price_usd', { precision: 10, scale: 2 }), // Price in USD (e.g., 199.99)
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
