@@ -190,7 +190,7 @@ export default function TrackingPage({ params }: TrackingPageProps) {
                   )}
                   {tracking.priceUsd && (
                     <div className="col-span-2 pt-2 border-t border-orange-200/30">
-                      <p className="text-orange-600 dark:text-orange-300 mb-1">Package Value</p>
+                      <p className="text-orange-600 dark:text-orange-300 mb-1">Shipping Fee</p>
                       <p className="font-bold text-2xl text-orange-700 dark:text-orange-300">
                         ${Number(tracking.priceUsd).toFixed(2)} <span className="text-sm font-normal">USD</span>
                       </p>
