@@ -95,7 +95,7 @@ export async function sendTrackingCreatedEmail({
                               ${priceUsd ? `
                               <tr>
                                 <td style="color: #666666; font-size: 14px;">
-                                  <strong>Value:</strong>
+                                  <strong>Fee:</strong>
                                 </td>
                                 <td style="color: #333333; font-size: 14px;">
                                   <strong style="color: #ea580c;">$${Number(priceUsd).toFixed(2)} USD</strong>
@@ -235,11 +235,11 @@ export async function sendTrackingPriceUpdatedEmail({
                       </h2>
                       
                       <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.6;">
-                        The value (price) details for your package <strong>${packageName}</strong> have been updated.
+                        The shipping fee details for your package <strong>${packageName}</strong> have been updated.
                       </p>
 
                       <div style="background-color: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
-                        <p style="margin: 0; color: #666666; font-size: 14px;">Updated Value:</p>
+                        <p style="margin: 0; color: #666666; font-size: 14px;">Updated Fee:</p>
                         <p style="margin: 10px 0 0 0; color: #ea580c; font-size: 24px; font-weight: bold;">
                           ${formattedPrice}
                         </p>
